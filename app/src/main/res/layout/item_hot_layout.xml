@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp">
+
+    <com.xrtz.xrlive.view.CircleImageView
+        android:id="@+id/icon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@mipmap/test1" />
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/icon"
+        android:layout_toRightOf="@id/icon"
+        android:textSize="@dimen/sp_16" />
+
+    <TextView
+        android:id="@+id/address"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/icon"
+        android:layout_toRightOf="@id/icon"
+        android:textSize="@dimen/sp_12" />
+
+    <TextView
+        android:id="@+id/lookingnum"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@id/icon"
+        android:textColor="@color/yellow_textcolor_lookingnum"
+        android:textSize="@dimen/sp_16" />
+
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/icon"
+        android:layout_alignParentRight="true"
+        android:text="在看"
+        android:textSize="@dimen/sp_12" />
+
+    <ImageView
+        android:id="@+id/big_image"
+        android:layout_below="@id/icon"
+        android:layout_width="match_parent"
+        android:layout_height="240dp"  />
+</RelativeLayout>

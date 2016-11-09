@@ -1,0 +1,51 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto" >
+    <RelativeLayout
+        android:id="@+id/topPanel"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp50"
+        android:background="@color/colorPrimary"
+        >
+        <ImageView
+            android:id="@+id/title_search"
+            android:layout_width="@dimen/dp30"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/title_button_search"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="@dimen/dp5"
+            android:layout_centerVertical="true"/>
+        <ImageView
+            android:id="@+id/title_more"
+            android:layout_width="@dimen/dp30"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/title_button_more"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="@dimen/dp5"
+            android:layout_centerVertical="true"/>
+        <android.support.design.widget.TabLayout
+            android:id="@+id/homeTitleTab"
+            android:layout_toRightOf="@id/title_search"
+            android:layout_toLeftOf="@id/title_more"
+            android:layout_width="match_parent"
+            android:layout_centerVertical="true"
+            android:layout_height="wrap_content"
+            app:tabBackground="@color/colorPrimary"
+            app:tabTextColor="@android:color/white"
+            app:tabSelectedTextColor="#ff9089"
+            app:tabMode="fixed"
+            app:tabIndicatorColor="@android:color/white"
+
+        />
+        </RelativeLayout>
+
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/home_viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/hello_blank_fragment"/>
+</LinearLayout>
