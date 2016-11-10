@@ -53,7 +53,7 @@ import java.util.TimerTask;
 
 public class CameraActivity extends Activity implements
         ActivityCompat.OnRequestPermissionsResultCallback {
-
+    //zhushi
     private static final String TAG = "CameraActivity";
 
     private GLSurfaceView mCameraPreviewView;
