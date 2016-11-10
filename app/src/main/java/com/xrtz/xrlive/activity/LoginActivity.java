@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.xrtz.xrlive.R;
@@ -37,8 +38,18 @@ public class LoginActivity extends AppCompatActivity {
     EditText mLoginUserEt;
     @BindView(R.id.login_passwsd)
     EditText mLoginPwdEt;
+    /*记住账号密码选择框*/
     @BindView(R.id.remember_checkbox)
     CheckBox remember_checkbox;
+    /*第三方qq登录*/
+    @BindView(R.id.qq_textview)
+    TextView qq_textview;
+    /*第三方微信登录*/
+    @BindView(R.id.wechat_textview)
+    TextView wechat_textview;
+    /*第三方微博登录*/
+    @BindView(R.id.weibo_textview)
+    TextView weibo_textview;
     String userName;
     String password;
     /*是否记住密码,ssss*/
