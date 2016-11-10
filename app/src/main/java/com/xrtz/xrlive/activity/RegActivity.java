@@ -31,6 +31,9 @@ import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
+/**
+ * 注册
+ */
 public class RegActivity extends AppCompatActivity {
 
     @BindView(R.id.userName)
