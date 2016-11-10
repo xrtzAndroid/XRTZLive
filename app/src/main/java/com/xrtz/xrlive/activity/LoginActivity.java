@@ -41,7 +41,7 @@ public class LoginActivity extends AppCompatActivity {
     CheckBox remember_checkbox;
     String userName;
     String password;
-    /*是否记住密码*/
+    /*是否记住密码,,*/
     private boolean rememberuser;
     private final String REMMEMBERUSER="rememberuser";
     private final String USERNAME="userName";
