@@ -13,6 +13,7 @@ import com.xrtz.xrlive.handler.CrashHandler;
 public class LiveApplication extends Application {
     private User user;
     static LiveApplication instance;
+    public static boolean rememberuser;
     @Override
     public void onCreate() {
         super.onCreate();
