@@ -4,30 +4,48 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
+import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.Toast;
 
+import com.hoo.mina.client.MinaClient;
 import com.ksyun.media.player.IMediaPlayer;
 import com.ksyun.media.player.KSYMediaMeta;
 import com.ksyun.media.player.KSYMediaPlayer;
 import com.xrtz.xrlive.R;
+import com.xrtz.xrlive.adapter.ChatMsgAdapter;
+import com.xrtz.xrlive.application.LiveApplication;
+import com.xrtz.xrlive.common.CommonValues;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
+
+import de.greenrobot.event.EventBus;
+import de.greenrobot.event.Subscribe;
+import de.greenrobot.event.ThreadMode;
 
 /**
  * 看直播
  */
-public class SurfacePlayerVideoActivity extends AppCompatActivity implements View.OnClickListener {
-    public static final String TAG="SurfacePlayerVideo";
+public class SurfacePlayerVideoActivity extends AppCompatActivity implements View.OnClickListener, View.OnFocusChangeListener, View.OnLayoutChangeListener {
+    public static final String TAG = "SurfacePlayerVideo";
     private Context mContext;
     private KSYMediaPlayer ksyMediaPlayer;
 
@@ -44,6 +62,23 @@ public class SurfacePlayerVideoActivity extends AppCompatActivity implements Vie
     //视频地址
     private String mDataSource;
 
+    //聊天信息显示的列表
+    private RecyclerView chatRecyclerView;
+    List<String> msgList = new ArrayList<>();//消息记录
+    ChatMsgAdapter adapter;
+    //底部发送消息按钮，送礼物的父容器
+    private View bottomTools;
+    //发送聊天消息的父容器
+    private View sendMsgTools;
+    //输入聊天消息的EditText
+    private EditText etmsg;
+    MinaClient client = new MinaClient();
+    private View rootView;
+    //屏幕高度
+    private int screenHeight = 0;
+    //软件盘弹起后所占高度阀值
+    private int keyHeight = 0;
+
     //各种对视频的处理监听
     private IMediaPlayer.OnPreparedListener mOnPreparedListener = new IMediaPlayer.OnPreparedListener() {
         @Override
@@ -57,16 +92,6 @@ public class SurfacePlayerVideoActivity extends AppCompatActivity implements Vie
 
             //start player
             ksyMediaPlayer.start();
-
-            //set progress
-            //setVideoProgress(0);//这里不显示进度
-
-            /*if (mQosThread != null && !mQosThread.isAlive())
-                mQosThread.start();
-
-
-            if(ksyMediaPlayer.getServerAddress() != null)
-                mServerIp.setText("ServerIP: "+ ksyMediaPlayer.getServerAddress());*/
 
             //  get meta data
             Bundle bundle = ksyMediaPlayer.getMediaMeta();
@@ -84,48 +109,15 @@ public class SurfacePlayerVideoActivity extends AppCompatActivity implements Vie
                 }
             }
 
-            //mSdkVersion.setText("SDK version: " + ksyMediaPlayer.getVersion());
-
-            //mVideoResolution.setText("Resolution:" + ksyMediaPlayer.getVideoWidth() + "x" + ksyMediaPlayer.getVideoHeight());
-
-            //mStartTime = System.currentTimeMillis();
-            //choosedebug = settings.getString("choose_debug","信息为空");
-            //下面的主要是在视频开始播放后，显示调试信息用的
-            /*if(choosedebug.isEmpty() || choosedebug.equals(Settings.DEBUGOFF)){
-                Log.e("VideoPlayer","关闭");
-                mSdkVersion.setVisibility(View.GONE);
-                mVideoResolution.setVisibility(View.GONE);
-                mFrameRate.setVisibility(View.GONE);
-                mVideoBitrate.setVisibility(View.GONE);
-                mPlayerPosition.setVisibility(View.GONE);
-                mLoadText.setVisibility(View.GONE);
-                mCpu.setVisibility(View.GONE);
-                mMemInfo.setVisibility(View.GONE);
-                mVideoBufferTime.setVisibility(View.GONE);
-                mAudioBufferTime.setVisibility(View.GONE);
-                mServerIp.setVisibility(View.GONE);
-                mDNSTime.setVisibility(View.GONE);
-                mHttpConnectionTime.setVisibility(View.GONE);
-
-            }else{
-                Log.e("VideoPlayer","开启");
-
-                mSdkVersion.setVisibility(View.VISIBLE);
-                mVideoResolution.setVisibility(View.VISIBLE);
-                mFrameRate.setVisibility(View.VISIBLE);
-                mVideoBitrate.setVisibility(View.VISIBLE);
-                mPlayerPosition.setVisibility(View.VISIBLE);
-                mLoadText.setVisibility(View.VISIBLE);
-                mCpu.setVisibility(View.VISIBLE);
-                mMemInfo.setVisibility(View.VISIBLE);
-                mVideoBufferTime.setVisibility(View.VISIBLE);
-                mAudioBufferTime.setVisibility(View.VISIBLE);
-                mServerIp.setVisibility(View.VISIBLE);
-                mDNSTime.setVisibility(View.VISIBLE);
-                mHttpConnectionTime.setVisibility(View.VISIBLE);
-            }*/
         }
     };
+    @Subscribe(threadMode = ThreadMode.MainThread)
+    public void onEvent(String msg){
+        msgList.add(msg);
+        adapter.notifyDataSetChanged();
+        chatRecyclerView.smoothScrollToPosition(msgList.size()-1);
+    }
+
 
     private IMediaPlayer.OnBufferingUpdateListener mOnBufferingUpdateListener = new IMediaPlayer.OnBufferingUpdateListener() {
         @Override
@@ -154,7 +146,6 @@ public class SurfacePlayerVideoActivity extends AppCompatActivity implements Vie
     private IMediaPlayer.OnSeekCompleteListener mOnSeekCompletedListener = new IMediaPlayer.OnSeekCompleteListener() {
         @Override
         public void onSeekComplete(IMediaPlayer mp) {
-            //Log.e(TAG, "onSeekComplete...............");
         }
     };
     private IMediaPlayer.OnCompletionListener mOnCompletionListener = new IMediaPlayer.OnCompletionListener() {
@@ -209,10 +200,10 @@ public class SurfacePlayerVideoActivity extends AppCompatActivity implements Vie
                     Log.d(TAG, "Buffering End.");
                     break;
                 case KSYMediaPlayer.MEDIA_INFO_AUDIO_RENDERING_START:
-                    Toast.makeText(mContext, "Audio Rendering Start", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(mContext, "Audio Rendering Start", Toast.LENGTH_SHORT).show();
                     break;
                 case KSYMediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START:
-                    Toast.makeText(mContext, "Video Rendering Start", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(mContext, "Video Rendering Start", Toast.LENGTH_SHORT).show();
                     break;
                 case KSYMediaPlayer.MEDIA_INFO_SUGGEST_RELOAD:
                     // Player find a new stream(video or audio), and we could reload the video.
@@ -220,7 +211,7 @@ public class SurfacePlayerVideoActivity extends AppCompatActivity implements Vie
                         ksyMediaPlayer.reload(mDataSource, false);
                     break;
                 case KSYMediaPlayer.MEDIA_INFO_RELOADED:
-                    Toast.makeText(mContext, "Succeed to reload video.", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(mContext, "Succeed to reload video.", Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "Succeed to reload video.");
                     return false;
             }
@@ -271,8 +262,24 @@ public class SurfacePlayerVideoActivity extends AppCompatActivity implements Vie
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mContext = getApplicationContext();
+        EventBus.getDefault().register(this);
         setContentView(R.layout.activity_surface_player_video);
+        rootView = findViewById(R.id.activity_video_player);
+        rootView.addOnLayoutChangeListener(this);
+        new Thread(){
+            @Override
+            public void run() {
+                if (client.connect(CommonValues.CHATIP,CommonValues.CHATPORT)) {
+                    //连接服务器这个操作是耗时的，所以在子线程
+                    //connect 连接好服务器后 ,会启动一个子线程接受消息的,接受消息的处理类叫 ClientMessageHandlerAdapter ，子线程通过EventBus将接受到的消息发送到主线程来更新列表
+                }
+            }
+        }.start();
 
+        //获取屏幕高度
+        screenHeight = this.getWindowManager().getDefaultDisplay().getHeight();
+        //阀值设置为屏幕高度的1/3
+        keyHeight = screenHeight/3;
         mDataSource = getIntent().getStringExtra("path");
 
         mVideoSurfaceView = (SurfaceView) findViewById(R.id.player_surface);
@@ -292,6 +299,25 @@ public class SurfacePlayerVideoActivity extends AppCompatActivity implements Vie
         ksyMediaPlayer.setBufferTimeMax(3);
         ksyMediaPlayer.setTimeout(5, 30);
 
+        chatRecyclerView = (RecyclerView) findViewById(R.id.msglist);
+        /*for(int i=0;i<15;i++){
+            StringBuffer sb= new StringBuffer();
+            for(int j=0;j<6;j++){
+                sb.append(i);
+            }
+            msgList.add(sb.toString());
+        }*/
+        //
+        adapter = new ChatMsgAdapter(msgList);
+        chatRecyclerView.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
+        chatRecyclerView.setAdapter(adapter);
+
+        sendMsgTools = findViewById(R.id.send_msg);
+        bottomTools = findViewById(R.id.room_bottom_tools);
+        etmsg = (EditText) findViewById(R.id.etmsg);
+        etmsg.setOnFocusChangeListener(this);
+        findViewById(R.id.playvideo_sendmsg).setOnClickListener(this);
+        findViewById(R.id.send).setOnClickListener(this);
         try {
             ksyMediaPlayer.setDataSource(mDataSource);
             ksyMediaPlayer.prepareAsync();
@@ -311,6 +337,39 @@ public class SurfacePlayerVideoActivity extends AppCompatActivity implements Vie
             case R.id.playvideo_stop:
                 videoPlayEnd();
                 break;
+
+            case R.id.playvideo_sendmsg://发送消息按钮点击，显示消息的输入框
+                sendMsgTools.setVisibility(View.VISIBLE);
+                bottomTools.setVisibility(View.GONE);
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
+                etmsg.setFocusable(true);
+                etmsg.setFocusableInTouchMode(true);
+                etmsg.requestFocus();
+                etmsg.findFocus();
+                break;
+            case R.id.send://正式发消息
+                //发送消息后，输入框还在那里
+                String msg = etmsg.getText().toString().trim();
+                if(!TextUtils.isEmpty(msg)){
+                    msgList.add(LiveApplication.newInstance().getUser().getUserName()+":"+msg);
+                    adapter.notifyDataSetChanged();
+                    etmsg.setText("");
+                    client.send(msg);
+                }
+                break;
+        }
+    }
+    //消息输入框是否还有获取到焦点
+    @Override
+    public void onFocusChange(View view, boolean hasFocus) {
+        if (hasFocus) {
+            // 获得焦点
+
+        } else {
+            // 失去焦点
+            sendMsgTools.setVisibility(View.GONE);
+            bottomTools.setVisibility(View.VISIBLE);
         }
     }
     @Override
@@ -318,6 +377,7 @@ public class SurfacePlayerVideoActivity extends AppCompatActivity implements Vie
         super.onDestroy();
         mVideoTextureView = null;
         mSurfaceTexture = null;
+        EventBus.getDefault().unregister(this);
     }
     @Override
     protected void onPause() {
@@ -346,5 +406,27 @@ public class SurfacePlayerVideoActivity extends AppCompatActivity implements Vie
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+    }
+    /*public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK  && event.getRepeatCount() == 0) {
+
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }*/
+
+    @Override
+    public void onLayoutChange(View v, int left, int top, int right,
+                               int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+        //old是改变前的左上右下坐标点值，没有old的是改变后的左上右下坐标点值
+        //现在认为只要控件将Activity向上推的高度超过了1/3屏幕高，就认为软键盘弹起
+        if(oldBottom != 0 && bottom != 0 &&(oldBottom - bottom > keyHeight)){
+            //监听到软件盘打开...
+
+        }else if(oldBottom != 0 && bottom != 0 &&(bottom - oldBottom > keyHeight)){
+            //监听到软件盘关闭...
+            sendMsgTools.setVisibility(View.GONE);
+            bottomTools.setVisibility(View.VISIBLE);
+        }
     }
 }

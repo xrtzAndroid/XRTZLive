@@ -37,41 +37,70 @@
         android:layout_marginTop="10dp"
         android:text="映客号：347239897" />
     <RelativeLayout
-        android:id="@+id/room_bottom_tools"
+        android:id="@+id/bottom_parent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="10dp"
-        android:orientation="horizontal">
-        <ImageView
-            android:id="@+id/playvideo_sendmsg"
-            android:layout_width="wrap_content"
+        android:layout_alignParentBottom="true">
+        <RelativeLayout
+            android:id="@+id/room_bottom_tools"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="10dp"
-            android:src="@mipmap/room_down_publicchat" />
-        <ImageView
-            android:id="@+id/playvideo_stop"
-            android:layout_width="wrap_content"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+            <ImageView
+                android:id="@+id/playvideo_sendmsg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:src="@mipmap/room_down_publicchat" />
+            <ImageView
+                android:id="@+id/playvideo_stop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:src="@mipmap/picture_choose_close" />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toLeftOf="@id/playvideo_stop"
+                android:layout_marginRight="30dp"
+                android:layout_centerVertical="true"
+                android:src="@mipmap/room_down_gift"/>
+        </RelativeLayout>
+        <LinearLayout
+            android:id="@+id/send_msg"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:src="@mipmap/picture_choose_close" />
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toLeftOf="@id/playvideo_stop"
-            android:layout_marginRight="30dp"
-            android:layout_centerVertical="true"
-            android:src="@mipmap/room_down_gift"/>
+            android:divider="@drawable/ll_diliver"
+            android:visibility="gone"
+            android:layout_marginRight="10dp"
+            android:layout_below="@id/room_bottom_tools">
+            <ToggleButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <EditText
+                android:id="@+id/etmsg"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
+            <Button
+                android:id="@+id/send"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/send"/>
+        </LinearLayout>
     </RelativeLayout>
 
     <!--消息列表-->
     <android.support.v7.widget.RecyclerView
         android:id="@+id/msglist"
         android:layout_width="200dp"
-        android:layout_height="300dp"
+        android:layout_height="150dp"
+        android:layout_above="@id/bottom_parent"
         android:layout_alignParentLeft="true"
-        android:layout_above="@id/room_bottom_tools"/>
+        android:layout_alignParentStart="true" />
+
 </RelativeLayout>

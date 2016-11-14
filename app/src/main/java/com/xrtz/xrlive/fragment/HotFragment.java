@@ -87,9 +87,9 @@ public class HotFragment extends Fragment {
             @Override
             public void onItemClick(View view, int position) {
                 Intent intent = new Intent(getContext(), SurfacePlayerVideoActivity.class);
-                //intent.putExtra("path","rtmp://211.149.239.170:1935/live/");//默认的测试的看视频的地址
+                intent.putExtra("path","rtmp://live.hkstv.hk.lxdns.com/live/hks");//默认的测试的看视频的地址
 
-                intent.putExtra("path","rtmp://211.149.239.170:1935/live/"+list.get(position).getUserId());
+                //intent.putExtra("path","rtmp://211.149.239.170:1935/live/"+list.get(position).getUserId());
 
                 startActivity(intent);
             }
